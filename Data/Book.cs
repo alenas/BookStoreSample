@@ -3,13 +3,27 @@
 namespace Data {
 
     public class Book {
-        public string ASIN { get; set; }
-        public string IMAGE_URL { get; set; }
-        public string TITLE { get; set; }
-        public string AUTHOR { get; set; }
-        public int CATEGORY_ID { get; set; }
-        public string CATEGORY { get; set; }
-        public Guid ID { get; set; }
-        public double PRICE { get; set; }
+
+        public string ASIN { get; }
+        public string ImageUrl { get; }
+        public string Title { get; }
+        public string Author { get; }
+        public int CagegoryId { get; }
+        public string Category { get; }
+        public Guid Id { get; }
+        public double Price { get; }
+
+        public Book(string asin, string image_url, string title, string author,
+            int category_id, string category, Guid id, double price) {
+
+            ASIN = asin;
+            ImageUrl = image_url;
+            Title = title;
+            Author = author;
+            CagegoryId = category_id;
+            Category = category;
+            Id = id;
+            Price = price;
+        }
     }
 }
