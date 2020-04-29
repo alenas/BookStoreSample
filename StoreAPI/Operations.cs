@@ -5,7 +5,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-using Data;
+using AzureFunctions.Extensions.Swashbuckle.Attribute;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +25,12 @@ namespace StoreAPI {
         /// <summary>
         /// Gets a list of all books
         /// </summary>
-        [FunctionName("Get-Books")]
-        public static IEnumerable<Book> GetBooks(ILogger log,
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Book[]))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(Error))]
+        [FunctionName("Books")]
+        public static IEnumerable<Book> GetBooks(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "books")] HttpRequest req,
+            [SwaggerIgnore]
             [CosmosDB(Constants.DBName, Constants.BookCollection,
                 ConnectionStringSetting = Constants.DBConnection)] IEnumerable<Book> books) {
             // just returns books from cosmodb binding
@@ -35,11 +38,17 @@ namespace StoreAPI {
         }
 
         /// <summary>
-        /// Gets subscribed book ids for a user
+        /// Gets current users subscriptions
         /// </summary>
-        [FunctionName("Get-Subscription")]
-        public static async Task<IActionResult> GetSubscription(ILogger log, ClaimsPrincipal principal,
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Subscription))]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(Error))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(Error))]
+        [RequestHttpHeader("Authorization", isRequired: true)]
+        [FunctionName("Subscription")]
+        public static async Task<IActionResult> GetSubscription(ILogger log,
+            [SwaggerIgnore] ClaimsPrincipal principal,
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "subscription")] HttpRequest req,
+            [SwaggerIgnore]
             [CosmosDB(Constants.DBName, Constants.SubscriptionCollection, ConnectionStringSetting = Constants.DBConnection)] DocumentClient client
             ) {
 
@@ -60,8 +69,15 @@ namespace StoreAPI {
         /// <summary>
         /// Adds a new bookId to users subscription
         /// </summary>
+        /// <returns>updated subscription</returns>
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Subscription))]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(Error))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(Error))]
+        [RequestHttpHeader("Authorization", isRequired: true)]
         [FunctionName("Subscribe")]
-        public static async Task<IActionResult> Subscribe(ILogger log, ClaimsPrincipal principal,
+        public static async Task<IActionResult> Subscribe(ILogger log,
+            [SwaggerIgnore] ClaimsPrincipal principal,
+            [RequestBodyType(typeof(Guid), "Book ID")]
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "subscription")] HttpRequest req,
             [CosmosDB(Constants.DBName, Constants.SubscriptionCollection, ConnectionStringSetting = Constants.DBConnection)] DocumentClient client
             ) {
@@ -82,13 +98,13 @@ namespace StoreAPI {
                     // already exists
                     return new OkObjectResult(item.Document);
                 }
-
+                // Update subscription
                 var result = await client.ReplaceDocumentAsync(documentUri, item.Document, new RequestOptions() { PartitionKey = new PartitionKey(email) });
 
                 return new OkObjectResult(result.Resource);
             } catch (DocumentClientException e) when (e.StatusCode == HttpStatusCode.NotFound) {
-                // there is no document for a user - so create a new one
-                var result = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(Constants.DBName, Constants.SubscriptionCollection), new Subscription(email, new Guid[] { bookGuid }), new RequestOptions() { PartitionKey = new PartitionKey(email) });
+                // there is no subscription for a user - so create a new one
+                var result = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(Constants.DBName, Constants.SubscriptionCollection), new Subscription(email, bookGuid), new RequestOptions() { PartitionKey = new PartitionKey(email) });
                 return new OkObjectResult(result.Resource);
             }
         }
@@ -97,9 +113,15 @@ namespace StoreAPI {
         /// Removes bookId from subscription
         /// </summary>
         /// <returns>updated subscription</returns>
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Subscription))]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized, Type = typeof(Error))]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(Error))]
+        [RequestHttpHeader("Authorization", isRequired: true)]
         [FunctionName("UnSubscribe")]
-        public static async Task<IActionResult> UnSubscribe(ILogger log, ClaimsPrincipal principal,
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "subscription")] HttpRequest req,
+        public static async Task<IActionResult> UnSubscribe(ILogger log,
+            [SwaggerIgnore] ClaimsPrincipal principal,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "subscription")]
+            [RequestBodyType(typeof(Guid), "Book ID")] HttpRequest req,
             [CosmosDB(Constants.DBName, Constants.SubscriptionCollection, ConnectionStringSetting = Constants.DBConnection)] DocumentClient client
             ) {
 
