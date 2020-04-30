@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+
 namespace StoreAPI {
 
 	/// <summary>
@@ -23,6 +25,7 @@ namespace StoreAPI {
 		/// </summary>
 		/// <param name="id">Email</param>
 		/// <param name="subscribedBookIds">Book Id</param>
+		[JsonConstructor]
 		public Subscription(string id, List<Guid> subscribedBookIds) {
 			this.id = id;
 			SubscribedBookIds = subscribedBookIds;
