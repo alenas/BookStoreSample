@@ -1,0 +1,26 @@
+﻿<v:BookViewBase
+    x:Class="UnoRx.Views.BookView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:v="using:UnoRx.Views"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    mc:Ignorable="d" d:DesignWidth="189" d:DesignHeight="267">
+
+
+    <StackPanel Margin="5,5,5,5" Width="130" Height="250">
+        <Image x:Name="bookImage" Margin="0,0,0,5" Width="100" Height="150"
+            HorizontalAlignment="Center" />
+        <TextBlock TextWrapping="NoWrap" VerticalAlignment="Center">
+            <Run FontSize="14" FontWeight="SemiBold" x:Name="bookTitle" />
+            <LineBreak />
+            <Run FontSize="12" x:Name="bookPrice" />
+        </TextBlock>
+        <Grid x:Name="btnPanel" Visibility="Collapsed">
+            <Button x:Name="subButton" Content="Subscribe" Visibility="Visible" HorizontalAlignment="Center" />
+            <Button x:Name="unButton" Content="UnSubscribe" Background="OrangeRed" Visibility="Collapsed" HorizontalAlignment="Center" />
+        </Grid>
+    </StackPanel>
+
+</v:BookViewBase>

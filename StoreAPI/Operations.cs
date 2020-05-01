@@ -87,7 +87,8 @@ namespace StoreAPI {
             if (email == string.Empty) return new UnauthorizedResult();
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            Guid bookGuid = new Guid(requestBody);
+            log.LogInformation($"Add: {requestBody}");
+            Guid bookGuid = ParseGuid(requestBody);
 
             Uri documentUri = UriFactory.CreateDocumentUri(Constants.DBName, Constants.SubscriptionCollection, email);
             try {
@@ -130,7 +131,7 @@ namespace StoreAPI {
             if (email == string.Empty) return new UnauthorizedResult();
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            Guid bookGuid = new Guid(requestBody);
+            Guid bookGuid = ParseGuid(requestBody);
 
             Uri documentUri = UriFactory.CreateDocumentUri(Constants.DBName, Constants.SubscriptionCollection, email);
             try {
@@ -149,6 +150,17 @@ namespace StoreAPI {
                 // there is no document for a user - so skip
                 return new OkResult();
             }
+        }
+
+        /// <summary>
+        /// Parses Guid, as some json serializers put Guids in quotation marks
+        /// </summary>
+        private static Guid ParseGuid(string guid) {
+            guid = guid.Trim();
+            if (guid.Length > 36) {
+                guid = guid.Substring(1, 36);
+            }
+            return new Guid(guid);
         }
 
 

@@ -1,0 +1,22 @@
+﻿<local:BookStoreBase
+    x:Class="UnoRx.Views.BookStore"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UnoRx.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid>
+        <GridView
+            x:Name="bookList"
+            SelectionMode="None"/>
+
+        <ProgressRing x:Name="progress" IsActive="True" Height="60" Width="60"/>
+
+    </Grid>
+    
+</local:BookStoreBase>
