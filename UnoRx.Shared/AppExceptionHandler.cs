@@ -8,8 +8,10 @@ using Splat;
 
 namespace UnoRx {
 
+    /// <summary>
+    /// Custom exception handler
+    /// </summary>
     public class AppExceptionHandler : IEnableLogger, IObserver<Exception> {
-
 
         public void OnNext(Exception value) {
             if (Debugger.IsAttached) Debugger.Break();

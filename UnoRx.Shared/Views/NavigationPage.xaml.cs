@@ -17,7 +17,7 @@ namespace UnoRx.Views {
             this.InitializeComponent();
 
             this.WhenActivated(disposableRegistration => {
-
+                // Sign-in and Sign-out button bindings
                 this.OneWayBind(ViewModel,
                     viewModel => viewModel.IsSignIn,
                     view => view.btnSing.Content,

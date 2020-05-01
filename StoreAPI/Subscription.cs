@@ -38,8 +38,9 @@ namespace StoreAPI {
 		/// <param name="bookId">Book Id</param>
 		public Subscription(string id, Guid bookId) {
 			this.id = id;
-			SubscribedBookIds = new List<Guid>();
-			SubscribedBookIds.Add(bookId);
+			SubscribedBookIds = new List<Guid> {
+				bookId
+			};
 		}
 
 		/// <summary>

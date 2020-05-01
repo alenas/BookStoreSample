@@ -1,33 +1,32 @@
 ﻿using ReactiveUI;
 
-namespace UnoRx.Views
-{
-  public abstract partial class AppReactivePage<TViewModel> : ReactiveUI.Uno.ReactivePage<TViewModel>
-          where TViewModel : class
-  {                                   
-    protected AppReactivePage()
-    {
-      AttachHandlers();
-    }
+namespace UnoRx.Views {
 
-    void AttachHandlers()
-    {
-      DataContextChanged += (s, e) => OnDataContextChanged(e.NewValue);
-      RegisterPropertyChangedCallback(ViewModelProperty, (s, p) => OnViewModelChanged());
+    /// <summary>
+    /// Reactive page base class
+    /// </summary>
+    /// <typeparam name="TViewModel"></typeparam>
+    public abstract partial class AppReactivePage<TViewModel> : ReactiveUI.Uno.ReactivePage<TViewModel>
+          where TViewModel : class {
+        protected AppReactivePage() {
+            AttachHandlers();
+        }
 
-      this.WhenActivated(_ => { });
-    }
+        void AttachHandlers() {
+            DataContextChanged += (s, e) => OnDataContextChanged(e.NewValue);
+            RegisterPropertyChangedCallback(ViewModelProperty, (s, p) => OnViewModelChanged());
 
-    protected virtual void OnDataContextChanged(object newValue)
-    {
-      if (ViewModel != newValue)
-        ViewModel = newValue as TViewModel;
-    }
+            this.WhenActivated(_ => { });
+        }
 
-    protected virtual void OnViewModelChanged()
-    {
-      if (DataContext != ViewModel)
-        DataContext = ViewModel;
+        protected virtual void OnDataContextChanged(object newValue) {
+            if (ViewModel != newValue)
+                ViewModel = newValue as TViewModel;
+        }
+
+        protected virtual void OnViewModelChanged() {
+            if (DataContext != ViewModel)
+                DataContext = ViewModel;
+        }
     }
-  }
 }

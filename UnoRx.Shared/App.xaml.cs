@@ -56,23 +56,6 @@ namespace UnoRx {
                   config.Properties.Clear();
                   config.Sources.Clear();
                   hostingContext.Properties.Clear();
-
-                  //foreach (var fileProvider in config.Properties.Where(p => p.Value is PhysicalFileProvider).ToList())
-                  //  config.Properties.Remove(fileProvider);
-
-                  //IHostEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
-                  //config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).AddJsonFile("appsettings." + hostingEnvironment.EnvironmentName + ".json", optional: true, reloadOnChange: true);
-
-
-                  //if (hostingEnvironment.IsDevelopment() && !string.IsNullOrEmpty(hostingEnvironment.ApplicationName))
-                  //{
-                  //  Assembly assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
-                  //  if (assembly != null)
-                  //  {
-                  //    config.AddUserSecrets(assembly, optional: true);
-                  //  }
-                  //}
-                  //config.AddEnvironmentVariables();          
               })
               .ConfigureServices(ConfigureServices)
               .ConfigureLogging(loggingBuilder => {
@@ -86,21 +69,20 @@ namespace UnoRx {
                           loggingBuilder.Services.Remove(el);
                   }
 
-                  //Uno.Extensions.LogExtensionPoint.AmbientLoggerFactory.WithFilter(CreateFilterLoggerSettings());
                   loggingBuilder
-                  .AddSplat()
+                      .AddSplat()
 #if !__WASM__
-            .AddConsole()
+                      .AddConsole()
 #else
-            .ClearProviders()            
+                      .ClearProviders()            
 #endif
 
 #if DEBUG
-            .SetMinimumLevel(LogLevel.Debug)
+                      .SetMinimumLevel(LogLevel.Debug)
 #else
-            .SetMinimumLevel(LogLevel.Information)
+                      .SetMinimumLevel(LogLevel.Information)
 #endif
-            ;
+                      ;
 
               })
               .Build();

@@ -15,37 +15,31 @@ namespace StoreAPI.Authentication {
     /// </summary>
     /// <see cref="https://github.com/Azure-Samples/active-directory-b2c-xamarin-native"/>
     public class B2CAuthenticationService {
-        private readonly IPublicClientApplication _pca;
 
+        private readonly IPublicClientApplication _pca;
 
         private static readonly Lazy<B2CAuthenticationService> lazy = new Lazy<B2CAuthenticationService>
            (() => new B2CAuthenticationService());
 
         public static B2CAuthenticationService Instance { get { return lazy.Value; } }
 
-
+        /// <summary>
+        /// Initializes authentication services
+        /// </summary>
         private B2CAuthenticationService() {
-
             // default redirectURI; each platform specific project will have to override it with its own
             var builder = PublicClientApplicationBuilder.Create(B2CConstants.ClientID)
                 .WithB2CAuthority(B2CConstants.AuthoritySignInSignUp)
                 //.WithIosKeychainSecurityGroup(B2CConstants.IOSKeyChainGroup)
                 .WithRedirectUri($"msal{B2CConstants.ClientID}://auth");
 
-            // Android implementation is based on https://github.com/jamesmontemagno/CurrentActivityPlugin
-            // iOS implementation would require to expose the current ViewControler - not currently implemented as it is not required
-            // UWP does not require this
-            /*
-            var windowLocatorService = DependencyService.Get<IParentWindowLocatorService>();
-
-            if (windowLocatorService != null)
-            {
-                builder = builder.WithParentActivityOrWindow(() => windowLocatorService?.GetCurrentParentWindow());
-            }
-            */
             _pca = builder.Build();
         }
 
+        /// <summary>
+        /// Tries silently sign-in user, and if fails then calls interactive sign-in
+        /// </summary>
+        /// <returns>User Context</returns>
         public async Task<UserContext> SignInAsync() {
             UserContext newContext;
             try {
@@ -58,16 +52,10 @@ namespace StoreAPI.Authentication {
             return newContext;
         }
 
-        private async Task<UserContext> AcquireTokenSilent() {
-            IEnumerable<IAccount> accounts = await _pca.GetAccountsAsync();
-            AuthenticationResult authResult = await _pca.AcquireTokenSilent(B2CConstants.Scopes, GetAccountByPolicy(accounts, B2CConstants.PolicySignUpSignIn))
-               .WithB2CAuthority(B2CConstants.AuthoritySignInSignUp)
-               .ExecuteAsync();
-
-            var newContext = UpdateUserInfo(authResult);
-            return newContext;
-        }
-
+        /// <summary>
+        /// Resets user password
+        /// </summary>
+        /// <returns>User Context</returns>
         public async Task<UserContext> ResetPasswordAsync() {
             AuthenticationResult authResult = await _pca.AcquireTokenInteractive(B2CConstants.Scopes)
                 .WithPrompt(Prompt.NoPrompt)
@@ -79,6 +67,10 @@ namespace StoreAPI.Authentication {
             return userContext;
         }
 
+        /// <summary>
+        /// Edits users profile
+        /// </summary>
+        /// <returns>User Context</returns>
         public async Task<UserContext> EditProfileAsync() {
             IEnumerable<IAccount> accounts = await _pca.GetAccountsAsync();
 
@@ -93,6 +85,39 @@ namespace StoreAPI.Authentication {
             return userContext;
         }
 
+        /// <summary>
+        /// Sing Out
+        /// </summary>
+        /// <returns>User Context</returns>
+        public async Task<UserContext> SignOutAsync() {
+            IEnumerable<IAccount> accounts = await _pca.GetAccountsAsync();
+            while (accounts.Any()) {
+                await _pca.RemoveAsync(accounts.FirstOrDefault());
+                accounts = await _pca.GetAccountsAsync();
+            }
+            var signedOutContext = new UserContext();
+            signedOutContext.IsLoggedOn = false;
+            return signedOutContext;
+        }
+
+        /// <summary>
+        /// Silent authentication if token is already in a cache
+        /// </summary>
+        /// <returns>User Context</returns>
+        private async Task<UserContext> AcquireTokenSilent() {
+            IEnumerable<IAccount> accounts = await _pca.GetAccountsAsync();
+            AuthenticationResult authResult = await _pca.AcquireTokenSilent(B2CConstants.Scopes, GetAccountByPolicy(accounts, B2CConstants.PolicySignUpSignIn))
+               .WithB2CAuthority(B2CConstants.AuthoritySignInSignUp)
+               .ExecuteAsync();
+
+            var newContext = UpdateUserInfo(authResult);
+            return newContext;
+        }
+
+        /// <summary>
+        /// Interactive log-on
+        /// </summary>
+        /// <returns>User Context</returns>
         private async Task<UserContext> SignInInteractively() {
             IEnumerable<IAccount> accounts = await _pca.GetAccountsAsync();
 
@@ -102,18 +127,6 @@ namespace StoreAPI.Authentication {
 
             var newContext = UpdateUserInfo(authResult);
             return newContext;
-        }
-
-        public async Task<UserContext> SignOutAsync() {
-
-            IEnumerable<IAccount> accounts = await _pca.GetAccountsAsync();
-            while (accounts.Any()) {
-                await _pca.RemoveAsync(accounts.FirstOrDefault());
-                accounts = await _pca.GetAccountsAsync();
-            }
-            var signedOutContext = new UserContext();
-            signedOutContext.IsLoggedOn = false;
-            return signedOutContext;
         }
 
         private IAccount GetAccountByPolicy(IEnumerable<IAccount> accounts, string policy) {
@@ -133,7 +146,7 @@ namespace StoreAPI.Authentication {
             return decoded;
         }
 
-        public UserContext UpdateUserInfo(AuthenticationResult ar) {
+        UserContext UpdateUserInfo(AuthenticationResult ar) {
             var newContext = new UserContext();
             newContext.IsLoggedOn = false;
             JObject user = ParseIdToken(ar.IdToken);

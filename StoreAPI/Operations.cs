@@ -63,6 +63,9 @@ namespace StoreAPI {
                 return new OkObjectResult(item.Document);
             } catch (DocumentClientException e) when (e.StatusCode == HttpStatusCode.NotFound) {
                 return new EmptyResult();
+            } catch (Exception ex) {
+                log.LogError(ex, "failed reading subscriptions");
+                throw ex;
             }
         }
 
@@ -107,6 +110,9 @@ namespace StoreAPI {
                 // there is no subscription for a user - so create a new one
                 var result = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(Constants.DBName, Constants.SubscriptionCollection), new Subscription(email, bookGuid), new RequestOptions() { PartitionKey = new PartitionKey(email) });
                 return new OkObjectResult(result.Resource);
+            } catch (Exception ex) {
+                log.LogError(ex, "failed adding subscription");
+                throw ex;
             }
         }
 
@@ -149,6 +155,9 @@ namespace StoreAPI {
             } catch (DocumentClientException e) when (e.StatusCode == HttpStatusCode.NotFound) {
                 // there is no document for a user - so skip
                 return new OkResult();
+            } catch (Exception ex) {
+                log.LogError(ex, "failed unsubscribing");
+                throw ex;
             }
         }
 

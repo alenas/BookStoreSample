@@ -9,6 +9,9 @@ using UnoRx.ViewModels;
 
 namespace UnoRx.Services {
 
+    /// <summary>
+    /// Book Service
+    /// </summary>
     public class BookService {
 
         private readonly SubscriptionService _subs;

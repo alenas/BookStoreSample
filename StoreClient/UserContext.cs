@@ -1,4 +1,8 @@
 ﻿namespace StoreAPI.Authentication {
+
+    /// <summary>
+    /// User Context
+    /// </summary>
     public class UserContext {
         public string Name { get; internal set; }
         public string UserIdentifier { get; internal set; }

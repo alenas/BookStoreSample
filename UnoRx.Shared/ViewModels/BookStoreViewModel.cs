@@ -30,8 +30,7 @@ namespace UnoRx.ViewModels {
 		public bool IsBusy => !_isAvailable.Value;
 
 		public BookStoreViewModel(IScreen hostScreen, BookService client, SubscriptionService subs) : base(hostScreen) {
-
-			// loads books
+			// loads books from BookService and stores in an observable property
 			_bookResults = this
 				.WhenAnyValue(x => x._bookResults)
 				.Where(r => r == null)

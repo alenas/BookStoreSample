@@ -1,20 +1,18 @@
 ﻿using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Reactive.Disposables;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace UnoRx.ViewModels
-{
-    public abstract class ViewModelBase : ReactiveObject
-    {
+namespace UnoRx.ViewModels {
+
+    /// <summary>
+    /// All view models should be Ractive
+    /// </summary>
+    public abstract class ViewModelBase : ReactiveObject {
     }
 
-    public abstract class RoutableViewModel : ViewModelBase, IRoutableViewModel
-    {
-        protected RoutableViewModel(IScreen hostScreen)
-        {
+    /// <summary>
+    /// Routable view model
+    /// </summary>
+    public abstract class RoutableViewModel : ViewModelBase, IRoutableViewModel {
+        protected RoutableViewModel(IScreen hostScreen) {
             HostScreen = hostScreen;
         }
 
